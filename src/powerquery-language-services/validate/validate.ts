@@ -35,9 +35,9 @@ export function validate(
             initialCorrelationId: trace.id,
         };
 
-        const analysis: Analysis = AnalysisUtils.createAnalysis(textDocument, analysisSettings);
-        const parseState: ParseState | undefined = await analysis.getParseState();
-        const parseError: ParseError.ParseError | undefined = await analysis.getParseError();
+        const analysis: Analysis = AnalysisUtils.analysis(textDocument, analysisSettings);
+        const parseState: ParseState | undefined = ResultUtils.assertUnboxOk(await analysis.getParseState());
+        const parseError: ParseError.ParseError | undefined = ResultUtils.assertUnboxOk(await analysis.getParseError());
 
         if (parseState === undefined) {
             trace.exit();
@@ -88,7 +88,7 @@ export function validate(
                 ...invokeExpressionDiagnostics,
                 ...unknownIdentifiersDiagnostics,
             ],
-            hasSyntaxError: Boolean(await analysis.getParseError()),
+            hasSyntaxError: parseError !== undefined,
         };
 
         trace.exit();
